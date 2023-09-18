@@ -651,7 +651,7 @@ void KeyFrameDatabase::DetectNBestCandidates(KeyFrame *pKF, vector<KeyFrame *> &
     // Step 1统计与当前关键帧有相同单词的关键帧
     list<KeyFrame *> lKFsSharingWords;
     // set<KeyFrame*> spInsertedKFsSharing;
-    //  当前关键帧的共视关键帧(避免将当前关键帧的共视关键帧加入回环检测)
+    // 当前关键帧的共视关键帧(避免将当前关键帧的共视关键帧加入回环检测)
     set<KeyFrame *> spConnectedKF;
 
     // Search all keyframes that share a word with current frame
@@ -827,7 +827,6 @@ void KeyFrameDatabase::DetectNBestCandidates(KeyFrame *pKF, vector<KeyFrame *> &
 vector<KeyFrame *> KeyFrameDatabase::DetectRelocalizationCandidates(Frame *F, Map *pMap)
 {
     list<KeyFrame *> lKFsSharingWords;
-
     // Search all keyframes that share a word with current frame
     {
         unique_lock<mutex> lock(mMutex);
@@ -835,7 +834,6 @@ vector<KeyFrame *> KeyFrameDatabase::DetectRelocalizationCandidates(Frame *F, Ma
         for (DBoW2::BowVector::const_iterator vit = F->mBowVec.begin(), vend = F->mBowVec.end(); vit != vend; vit++)
         {
             list<KeyFrame *> &lKFs = mvInvertedFile[vit->first];
-
             for (list<KeyFrame *>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++)
             {
                 KeyFrame *pKFi = *lit;

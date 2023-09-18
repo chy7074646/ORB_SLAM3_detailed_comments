@@ -246,7 +246,6 @@ void ImuCamPose::Update(const double *pu)
         Rcw[i] = Rcb[i] * Rbw;
         tcw[i] = Rcb[i] * tbw + tcb[i];
     }
-
 }
 
 // 更新世界坐标系
@@ -255,7 +254,6 @@ void ImuCamPose::UpdateW(const double *pu)
     Eigen::Vector3d ur, ut;
     ur << pu[0], pu[1], pu[2];
     ut << pu[3], pu[4], pu[5];
-
 
     const Eigen::Matrix3d dR = ExpSO3(ur);
     DR = dR * DR;
@@ -376,9 +374,7 @@ bool VertexPose::write(std::ostream& os) const
             os << _estimate.pCamera[idx]->getParameter(i) << " ";
         }
     }
-
     os << _estimate.bf << " ";
-
     return os.good();
 }
 

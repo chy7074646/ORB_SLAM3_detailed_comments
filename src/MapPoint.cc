@@ -156,7 +156,6 @@ Eigen::Vector3f MapPoint::GetNormal()
     return mNormalVector;
 }
 
-
 KeyFrame* MapPoint::GetReferenceKeyFrame()
 {
     unique_lock<mutex> lock(mMutexFeatures);
@@ -560,7 +559,6 @@ bool MapPoint::IsInKeyFrame(KeyFrame *pKF)
 
 /**
  * @brief 更新平均观测方向以及观测距离范围
- *
  * 由于一个MapPoint会被许多相机观测到，因此在插入关键帧后，需要更新相应变量
  * 创建新的关键帧的时候会调用
  */
@@ -619,7 +617,7 @@ void MapPoint::UpdateNormalAndDepth()
     int level;
     if(pRefKF -> NLeft == -1)
     {
-        level = pRefKF->mvKeysUn[leftIndex].octave;
+        level = pRefKF -> mvKeysUn[leftIndex].octave;
     }
     else if(leftIndex != -1)
     {

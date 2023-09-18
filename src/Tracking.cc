@@ -1509,7 +1509,6 @@ bool Tracking::GetStepByStep()
     return bStepByStep;
 }
 
-
 /**
  * @brief 输入左右目图像，可以为RGB、BGR、RGBA、GRAY
  * 1、将图像转为mImGray和imGrayRight并初始化mCurrentFrame
@@ -1523,7 +1522,6 @@ bool Tracking::GetStepByStep()
 Sophus::SE3f Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp, string filename)
 {
     //cout << "GrabImageStereo" << endl;
-
     mImGray = imRectLeft;
     cv::Mat imGrayRight = imRectRight;
     mImRight = imRectRight;
@@ -1580,7 +1578,6 @@ Sophus::SE3f Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat 
         mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,mpCamera,&mLastFrame,*mpImuCalib);
     else if(mSensor == System::IMU_STEREO && mpCamera2)
         mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,mpCamera,mpCamera2,mTlr,&mLastFrame,*mpImuCalib);
-
     //cout << "Incoming frame ended" << endl;
 
     mCurrentFrame.mNameFile = filename;
@@ -1876,7 +1873,6 @@ void Tracking::PreintegrateIMU()
     mCurrentFrame.mpLastKeyFrame = mpLastKeyFrame;
 
     mCurrentFrame.setIntegrated();
-
     //Verbose::PrintMess("Preintegration is finished!! ", Verbose::VERBOSITY_DEBUG);
 }
 
@@ -1885,7 +1881,6 @@ void Tracking::PreintegrateIMU()
  * 两个地方用到：
  * 1. 匀速模型计算速度,但并没有给当前帧位姿赋值；
  * 2. 跟踪丢失时不直接判定丢失，通过这个函数预测当前帧位姿看看能不能拽回来，代替纯视觉中的重定位
- * 
  * @return true 
  * @return false 
  */
@@ -1970,7 +1965,6 @@ void Tracking::ResetFrameIMU()
  */
 void Tracking::Track()
 {
-
     if (bStepByStep)
     {
         std::cout << "Tracking: Waiting to the next step" << std::endl;
@@ -2039,7 +2033,6 @@ void Tracking::Track()
                 }
                 return;
             }
-
         }
     }
 
@@ -2133,7 +2126,6 @@ void Tracking::Track()
         // tracking 类构造时默认为false。在viewer中有个开关ActivateLocalizationMode，可以控制是否开启mbOnlyTracking
         if(!mbOnlyTracking)
         {
-
             // State OK
             // Local Mapping is activated. This is the normal behaviour, unless
             // you explicitly activate the "only tracking" mode.
@@ -2142,7 +2134,6 @@ void Tracking::Track()
             // 如果正常跟踪
             if(mState==OK)
             {
-
                 // Local Mapping might have changed some MapPoints tracked in last frame
                 // Step 6.1 检查并更新上一帧被替换的MapPoints
                 // 局部建图线程则可能会对原有的地图点进行替换.在这里进行检查
@@ -2244,7 +2235,6 @@ void Tracking::Track()
                     // Step 6.6 如果是LOST状态
                     // 开启一个新地图
                     Verbose::PrintMess("A new map is started...", Verbose::VERBOSITY_NORMAL);
-
                     if (pCurrentMap->KeyFramesInMap()<10)
                     {
                         // 当前地图中关键帧数目小于10，重置当前地图
@@ -2257,11 +2247,9 @@ void Tracking::Track()
                         mpLastKeyFrame = static_cast<KeyFrame*>(NULL);
 
                     Verbose::PrintMess("done", Verbose::VERBOSITY_NORMAL);
-
                     return;
                 }
             }
-
         }
         else  // 纯定位模式
         {
@@ -2297,13 +2285,10 @@ void Tracking::Track()
                 else
                 {
                     // In last frame we tracked mainly "visual odometry" points.
-
                     // We compute two camera poses, one from motion model and one doing relocalization.
                     // If relocalization is sucessfull we choose that solution, otherwise we retain
                     // the "visual odometry" solution.
-
                     // mbVO为true，表明此帧匹配了很少（小于10）的地图点，要跟丢的节奏，既做跟踪又做重定位
-
                     // MM=Motion Model,通过运动模型进行跟踪的结果
                     bool bOKMM = false;
                     // 通过重定位方法来跟踪的结果
@@ -2371,11 +2356,9 @@ void Tracking::Track()
         vdPosePred_ms.push_back(timePosePred);
 #endif
 
-
 #ifdef REGISTER_TIMES
         std::chrono::steady_clock::time_point time_StartLMTrack = std::chrono::steady_clock::now();
 #endif
-
         // Step 7 在跟踪得到当前帧初始姿态后，现在对local map进行跟踪得到更多的匹配，并优化当前位姿
         // 前面只是跟踪一帧得到初始位姿，这里搜索局部关键帧、局部地图点，和当前帧进行投影匹配，得到更多匹配的MapPoints后进行Pose优化
         // 在帧间匹配得到初始的姿态后，现在对local map进行跟踪得到更多的匹配，并优化当前位姿
@@ -2411,7 +2394,6 @@ void Tracking::Track()
         //                          \           \---局部地图跟踪失败---false
         //                           \---重定位失败---false
 
-        //
         // mState的历史变化---上一帧跟踪成功---当前帧跟踪成功---局部地图跟踪成功---OK                  -->OK  1 跟踪局部地图成功
         //            \               \              \---局部地图跟踪失败---OK                  -->OK  3 正常跟踪
         //             \               \---当前帧跟踪失败---非OK
@@ -2564,8 +2546,8 @@ void Tracking::Track()
 
             // Step 9.4 根据条件来判断是否插入关键帧
             // 需要同时满足下面条件1和2
-            // 条件1：bNeedKF=true，需要插入关键帧
-            // 条件2：bOK=true跟踪成功 或 IMU模式下的RECENTLY_LOST模式且mInsertKFsLost为true
+            // 条件1：bNeedKF = true，需要插入关键帧
+            // 条件2：bOK = true跟踪成功或IMU模式下的RECENTLY_LOST模式且mInsertKFsLost为true
             if(bNeedKF && (bOK || (mInsertKFsLost && mState==RECENTLY_LOST &&
                                    (mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD))))
                 CreateNewKeyFrame();  // 创建关键帧，对于双目或RGB-D会产生新的地图点
@@ -2655,12 +2637,10 @@ void Tracking::Track()
             mlFrameTimes.push_back(mlFrameTimes.back());
             mlbLost.push_back(mState==LOST);
         }
-
     }
 
 #ifdef REGISTER_LOOP
     if (Stop()) {
-
         // Safe area to stop
         while(isStopped())
         {
@@ -2744,7 +2724,6 @@ void Tracking::StereoInitialization()
                     pNewMP->ComputeDistinctiveDescriptors();
                     pNewMP->UpdateNormalAndDepth();
                     mpAtlas->AddMapPoint(pNewMP);
-
                     mCurrentFrame.mvpMapPoints[i]=pNewMP;
                 }
             }
@@ -3159,14 +3138,12 @@ void Tracking::CheckReplacedInLastFrame()
 
 /*
  * @brief 用参考关键帧的地图点来对当前普通帧进行跟踪
- * 
  * Step 1：将当前普通帧的描述子转化为BoW向量
  * Step 2：通过词袋BoW加速当前帧与参考帧之间的特征点匹配
- * Step 3: 将上一帧的位姿态作为当前帧位姿的初始值
- * Step 4: 通过优化3D-2D的重投影误差来获得位姿
+ * Step 3：将上一帧的位姿态作为当前帧位姿的初始值
+ * Step 4：通过优化3D-2D的重投影误差来获得位姿
  * Step 5：剔除优化后的匹配点中的外点
- * @return 如果匹配数超10，返回true
- * 
+ * @return 如果匹配数超10，返回true 
  */
 bool Tracking::TrackReferenceKeyFrame()
 {
@@ -3194,8 +3171,6 @@ bool Tracking::TrackReferenceKeyFrame()
     mCurrentFrame.SetPose(mLastFrame.GetPose());  // 用上一次的Tcw设置初值，在PoseOptimization可以收敛快一些
 
     //mCurrentFrame.PrintPointDistribution();
-
-
     // cout << " TrackReferenceKeyFrame mLastFrame.mTcw:  " << mLastFrame.mTcw << endl;
     // Step 4:通过优化3D-2D的重投影误差来获得位姿
     Optimizer::PoseOptimization(&mCurrentFrame);
@@ -3269,7 +3244,7 @@ void Tracking::UpdateLastFrame()
     vector<pair<float,int> > vDepthIdx;
     const int Nfeat = mLastFrame.Nleft == -1? mLastFrame.N : mLastFrame.Nleft;
     vDepthIdx.reserve(Nfeat);
-    for(int i=0; i<Nfeat;i++)
+    for(int i=0; i<Nfeat; i++)
     {
         float z = mLastFrame.mvDepth[i];
         if(z>0)
@@ -3351,7 +3326,7 @@ void Tracking::UpdateLastFrame()
  */
 bool Tracking::TrackWithMotionModel()
 {
-    // 最小距离 < 0.9*次小距离 匹配成功，检查旋转
+    // 最小距离 < 0.9*次小距离匹配成功，检查旋转
     ORBmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
@@ -3458,13 +3433,11 @@ bool Tracking::TrackWithMotionModel()
 
 /**
  * @brief 用局部地图进行跟踪，进一步优化位姿
- * 
  * 1. 更新局部地图，包括局部关键帧和关键点
  * 2. 对局部MapPoints进行投影匹配
  * 3. 根据匹配对估计当前帧的姿态
  * 4. 根据姿态剔除误匹配
  * @return true if success
- * 
  * Step 1：更新局部关键帧mvpLocalKeyFrames和局部地图点mvpLocalMapPoints 
  * Step 2：在局部地图中查找与当前帧匹配的MapPoints, 其实也就是对局部地图点进行跟踪
  * Step 3：更新局部所有MapPoints后对位姿再次优化
@@ -3473,7 +3446,6 @@ bool Tracking::TrackWithMotionModel()
  */
 bool Tracking::TrackLocalMap()
 {
-
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
     mTrackedFr++;
@@ -3612,7 +3584,6 @@ bool Tracking::TrackLocalMap()
 
 /**
  * @brief 判断当前帧是否需要插入关键帧
- * 
  * Step 1：纯VO模式下不插入关键帧，如果局部地图被闭环检测使用，则不插入关键帧
  * Step 2：如果距离上一次重定位比较近，或者关键帧数目超出最大限制，不插入关键帧
  * Step 3：得到参考关键帧跟踪到的地图点数量
@@ -3695,7 +3666,6 @@ bool Tracking::NeedNewKeyFrame()
                     nTrackedClose++;
                 else
                     nNonTrackedClose++;
-
             }
         }
         //Verbose::PrintMess("[NEEDNEWKF]-> closed points: " + to_string(nTrackedClose) + "; non tracked closed points: " + to_string(nNonTrackedClose), Verbose::VERBOSITY_NORMAL);// Verbose::VERBOSITY_DEBUG);
@@ -3894,7 +3864,7 @@ void Tracking::CreateNewKeyFrame()
             // Step 3.3：从中找出不是地图点的生成临时地图点 
             // 处理的近点的个数
             int nPoints = 0;
-            for(size_t j=0; j<vDepthIdx.size();j++)
+            for(size_t j = 0; j<vDepthIdx.size();j++)
             {
                 int i = vDepthIdx[j].second;
 
@@ -4007,7 +3977,7 @@ void Tracking::SearchLocalPoints()
 
     // Project points in frame and check its visibility
     // Step 2：判断所有局部地图点中除当前帧地图点外的点，是否在当前帧视野范围内
-    for(vector<MapPoint*>::iterator vit=mvpLocalMapPoints.begin(), vend=mvpLocalMapPoints.end(); vit!=vend; vit++)
+    for(vector<MapPoint*>::iterator vit = mvpLocalMapPoints.begin(), vend = mvpLocalMapPoints.end(); vit!=vend; vit++)
     {
         MapPoint* pMP = *vit;
 
@@ -4121,7 +4091,8 @@ void Tracking::UpdateLocalPoints()
 
 /**
  * @brief 跟踪局部地图函数里，更新局部关键帧
- * 方法是遍历当前帧的地图点，将观测到这些地图点的关键帧和相邻的关键帧及其父子关键帧，作为mvpLocalKeyFrames
+ * 方法是遍历当前帧的地图点，将观测到这些地图点的关键帧和相邻的关键帧及其父子关键帧，
+ * 作为mvpLocalKeyFrames
  * Step 1：遍历当前帧的地图点，记录所有能观测到当前帧地图点的关键帧 
  * Step 2：更新局部关键帧（mvpLocalKeyFrames），添加局部关键帧包括以下3种类型
  *      类型1：能观测到当前帧地图点的关键帧，也称一级共视关键帧
@@ -4313,7 +4284,6 @@ void Tracking::UpdateLocalKeyFrames()
  * @details 重定位过程
  * @return true 
  * @return false 
- * 
  * Step 1：计算当前帧特征点的词袋向量
  * Step 2：找到与当前帧相似的候选关键帧
  * Step 3：通过BoW进行匹配
@@ -4337,7 +4307,6 @@ bool Tracking::Relocalization()
         Verbose::PrintMess("There are not candidates", Verbose::VERBOSITY_NORMAL);
         return false;
     }
-
     const int nKFs = vpCandidateKFs.size();
 
     // We perform first an ORB matching with each candidate
@@ -4514,7 +4483,6 @@ bool Tracking::Relocalization()
                     }
                 }
 
-
                 // If the pose is supported by enough inliers stop ransacs and continue
                 // 如果对于当前的候选关键帧已经有足够的内点(50个)了,那么就认为重定位成功
                 if(nGood>=50)
@@ -4540,7 +4508,6 @@ bool Tracking::Relocalization()
         cout << "Relocalized!!" << endl;
         return true;
     }
-
 }
 
 /**
@@ -4643,13 +4610,11 @@ void Tracking::ResetActiveMap(bool bLocMap)
     // Clear Map (this erase MapPoints and KeyFrames)
     mpAtlas->clearMap();
 
-
     //KeyFrame::nNextId = mpAtlas->GetLastInitKFid();
     //Frame::nNextId = mnLastInitFrameId;
     mnLastInitFrameId = Frame::nNextId;
     //mnLastRelocFrameId = mnLastInitFrameId;
     mState = NO_IMAGES_YET; //NOT_INITIALIZED;
-
     mbReadyToInitializate = false;
 
     list<bool> lbLost;
@@ -4682,7 +4647,6 @@ void Tracking::ResetActiveMap(bool bLocMap)
         index++;
     }
     cout << num_lost << " Frames set to lost" << endl;
-
     mlbLost = lbLost;
 
     mnInitialFrameId = mCurrentFrame.mnId;
@@ -4833,7 +4797,6 @@ void Tracking::UpdateFrameIMU(const float s, const IMU::Bias &b, KeyFrame* pCurr
     if (mCurrentFrame.mpImuPreintegrated)
     {
         const Eigen::Vector3f Gz(0, 0, -IMU::GRAVITY_VALUE);
-
         const Eigen::Vector3f twb1 = mCurrentFrame.mpLastKeyFrame->GetImuPosition();
         const Eigen::Matrix3f Rwb1 = mCurrentFrame.mpLastKeyFrame->GetImuRotation();
         const Eigen::Vector3f Vwb1 = mCurrentFrame.mpLastKeyFrame->GetVelocity();
@@ -4919,5 +4882,4 @@ void Tracking::Release()
     mbStopRequested = false;
 }
 #endif
-
 } //namespace ORB_SLAM

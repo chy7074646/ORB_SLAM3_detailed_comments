@@ -31,7 +31,6 @@
 
 namespace ORB_SLAM3
 {
-
 /**
  * @brief 回环线程构造函数
  * @param pAtlas atlas
@@ -50,7 +49,6 @@ LoopClosing::LoopClosing(Atlas *pAtlas, KeyFrameDatabase *pDB, ORBVocabulary *pV
     mpLastCurrentKF = static_cast<KeyFrame*>(NULL);
 
 #ifdef REGISTER_TIMES
-
     vdDataQuery_ms.clear();
     vdEstSim3_ms.clear();
     vdPRTotal_ms.clear();
@@ -165,7 +163,7 @@ void LoopClosing::Run()
                         {
                             cout << "Merge check transformation with IMU" << endl;
                             // 如果尺度变换太大, 认为累积误差较大，则放弃融合
-                            if(mSold_new.scale()<0.90||mSold_new.scale()>1.1){
+                            if(mSold_new.scale()<0.90 || mSold_new.scale()>1.1){
                                 mpMergeLastCurrentKF->SetErase();
                                 mpMergeMatchedKF->SetErase();
                                 mnMergeNumCoincidences = 0;
@@ -201,7 +199,6 @@ void LoopClosing::Run()
 
 #ifdef REGISTER_TIMES
                         std::chrono::steady_clock::time_point time_StartMerge = std::chrono::steady_clock::now();
-
                         nMerges += 1;
 #endif
                         // TODO UNCOMMENT
@@ -295,38 +292,29 @@ void LoopClosing::Run()
                                     mg2oLoopScw = g2oTwc.inverse()*g2oSww_new;
                                 }
                             }
-
                         }
                         else
                         {
                             cout << "BAD LOOP!!!" << endl;
                             bGoodLoop = false;
                         }
-
                     }
 
                     if (bGoodLoop) {
-
                         mvpLoopMapPoints = mvpLoopMPs;
-
 #ifdef REGISTER_TIMES
                         std::chrono::steady_clock::time_point time_StartLoop = std::chrono::steady_clock::now();
-
                         nLoop += 1;
-
 #endif
                         // 开启回环矫正
                         CorrectLoop();
 #ifdef REGISTER_TIMES
                         std::chrono::steady_clock::time_point time_EndLoop = std::chrono::steady_clock::now();
-
                         double timeLoopTotal = std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(time_EndLoop - time_StartLoop).count();
                         vdLoopTotal_ms.push_back(timeLoopTotal);
 #endif
-
                         mnNumCorrection += 1;
                     }
-
                     // Reset all variables
                     // 重置所有的回环变量
                     mpLoopLastCurrentKF->SetErase();
@@ -337,21 +325,17 @@ void LoopClosing::Run()
                     mnLoopNumNotFound = 0;
                     mbLoopDetected = false;
                 }
-
             }
             mpLastCurrentKF = mpCurrentKF;
         }
         // 查看是否有外部线程请求复位当前线程
         ResetIfRequested();
-
         // 查看外部线程是否有终止当前线程的请求,如果有的话就跳出这个线程的主函数的主循环
         if(CheckFinish()){
             break;
         }
-
         usleep(5000);
     }
-
     SetFinish();
 }
 
@@ -499,7 +483,6 @@ bool LoopClosing::NewDetectCommonRegions()
                 mvpLoopMPs.clear();
                 mnLoopNumNotFound = 0;
             }
-
         }
     }
 
@@ -514,7 +497,6 @@ bool LoopClosing::NewDetectCommonRegions()
         // 通过上一关键帧的信息,计算新的当前帧的sim3 
         // Tcl = Tcw*Twl
         Sophus::SE3d mTcl = (mpCurrentKF->GetPose() * mpMergeLastCurrentKF->GetPoseInverse()).cast<double>();
-
         g2o::Sim3 gScl(mTcl.unit_quaternion(), mTcl.translation(), 1.0);
         // mg2oMergeSlw 中的w指的是融合候选关键帧世界坐标系
         g2o::Sim3 gScw = gScl * mg2oMergeSlw;
@@ -560,8 +542,6 @@ bool LoopClosing::NewDetectCommonRegions()
                 mvpMergeMPs.clear();
                 mnMergeNumNotFound = 0;
             }
-
-
         }
     }  
 #ifdef REGISTER_TIMES
@@ -647,7 +627,6 @@ bool LoopClosing::NewDetectCommonRegions()
 
 /**
  * @brief 对新进来的关键帧进行时序几何验证,同时继续优化之前估计的 Tcw
- * 
  * @param[in] pCurrentKF 当前关键帧 
  * @param[in] pMatchedKF 候选帧
  * @param[out] gScw 世界坐标系在验证帧下的Sim3
@@ -746,13 +725,11 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
 
     // change 定义最佳共视关键帧的数量 0.4版本这里为5
     int nNumCovisibles = 10;
-
-
     ORBmatcher matcherBoW(0.9, true);  // 用于search by bow
     ORBmatcher matcher(0.75, true);  // 用与seach by projection
 
     // Varibles to select the best numbe
-    // 一些用于统计最优数据的变量,我们最后返回的是最佳的一个关键帧(几何校验匹配数最高的)
+    // 一些用于统计最优数据的变量, 我们最后返回的是最佳的一个关键帧(几何校验匹配数最高的)
     KeyFrame* pBestMatchedKF;
     int nBestMatchesReproj = 0;
     int nBestNumCoindicendes = 0;
@@ -787,7 +764,7 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
         }
         else
         {
-            // 再加上候选关键帧自己(这里操作比较迷,看起来只是为了把候选关键帧放到容器的第一顺位)
+            //再加上候选关键帧自己(这里操作比较迷,看起来只是为了把候选关键帧放到容器的第一顺位)
             vpCovKFi.push_back(vpCovKFi[0]);
             vpCovKFi[0] = pKFi;
         }
@@ -849,7 +826,6 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
                 nIndexMostBoWMatchesKF = j;
             }
         }
-
         // 遍历窗口内的每个关键帧
         // 2.4 把窗口内的匹配点转换为Sim3Solver接口定义的格式
         for(int j=0; j<vpCovKFi.size(); ++j)
@@ -916,7 +892,6 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
             if(bConverge)
             {
                 //std::cout << "Check BoW: SolverSim3 converged" << std::endl;
-
                 //Verbose::PrintMess("BoW guess: Convergende with " + to_string(nInliers) + " geometrical inliers among " + to_string(nBoWInliers) + " BoW matches", Verbose::VERBOSITY_DEBUG);
                 // Match by reprojection
                 vpCovKFi.clear();
@@ -955,9 +930,7 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
                         }
                     }
                 }
-
                 //std::cout << "There are " << vpKeyFrames.size() <<" KFs which view all the mappoints" << std::endl;
-
                 // 拿到solver 估计的 Scm初始值, 为后续的非线性优化做准备, 在这里 c 表示当前关键帧, m 表示回环/融合候选帧
                 g2o::Sim3 gScm(solver.GetEstimatedRotation().cast<double>(),solver.GetEstimatedTranslation().cast<double>(), (double) solver.GetEstimatedScale());
                 // 候选关键帧在其世界坐标系下的坐标
@@ -1003,8 +976,7 @@ bool LoopClosing::DetectCommonRegionsFromBoW(
                         // 3.3.4 重新利用之前计算的mScw信息, 通过更小的半径和更严格的距离的投影寻找匹配点
                         // 5 : 半径的增益系数(对比之前下降了)---> 更小的半径, 1.0 , hamming distance 的阀值增益系数---> 允许更小的距离
                         int numProjOptMatches = matcher.SearchByProjection(mpCurrentKF, mScw, vpMapPoints, vpMatchedMP, 5, 1.0);
-
-                        // 当新的投影得到的内点数量大于nProjOptMatches=80时
+                        //当新的投影得到的内点数量大于nProjOptMatches=80时
                         if(numProjOptMatches >= nProjOptMatches)
                         {
                             /// 以下为调试信息
@@ -1201,7 +1173,6 @@ int LoopClosing::FindMatchesByProjection(
     // 1. 如果数量不够 扩充窗口
     if(nInitialCov < nNumCovisibles)
     {
-        
         // 对于之前里的每个关键帧
         for(int i=0; i<nInitialCov; ++i)
         {
@@ -1217,7 +1188,6 @@ int LoopClosing::FindMatchesByProjection(
                 {
                     spCheckKFs.insert(vpKFs[j]);
                     ++nInserted;
-
                     // 改成这样
                     vpCovKFm.push_back(vpKFs[j]);
                 }
@@ -2233,8 +2203,6 @@ void LoopClosing::MergeLocal()
             // 优化:  当前关键帧所在地图里的所有关键帧(除了当前关键帧共视窗口内的关键帧) + 当前地图里的所有地图点
             Optimizer::OptimizeEssentialGraph(mpCurrentKF, vpMergeConnectedKFs, vpLocalCurrentWindowKFs, vpCurrentMapKFs, vpCurrentMapMPs);
         }
-
-
         {
             // Get Merge Map Mutex
             unique_lock<mutex> currentLock(pCurrentMap->mMutexMapUpdate); // We update the current map with the Merge information

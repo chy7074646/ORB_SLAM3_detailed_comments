@@ -91,7 +91,6 @@ namespace ORB_SLAM3 {
         float imuFrequency() {return imuFrequency_;}
         Sophus::SE3f Tbc() {return Tbc_;}
         bool insertKFsWhenLost() {return insertKFsWhenLost_;}
-
         float depthMapFactor() {return depthMapFactor_;}
 
         int nFeatures() {return nFeatures_;}
@@ -155,7 +154,6 @@ namespace ORB_SLAM3 {
         void readOtherParameters(cv::FileStorage& fSettings);
 
         void precomputeRectificationMaps();
-
         int sensor_;
         CameraType cameraType_;     //Camera type
 
@@ -227,7 +225,6 @@ namespace ORB_SLAM3 {
          * Other stuff
          */
         float thFarPoints_;
-
     };
 };
 

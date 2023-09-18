@@ -173,9 +173,7 @@ protected:
     unsigned long int mnBackupKFlowerID;
 
     std::vector<MapPoint*> mvpReferenceMapPoints;
-
     bool mbImuInitialized;
-
     int mnMapChange;
     int mnMapChangeNotified;
 

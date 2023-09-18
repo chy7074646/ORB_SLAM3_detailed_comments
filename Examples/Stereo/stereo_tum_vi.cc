@@ -31,8 +31,8 @@ using namespace std;
 
 void LoadImages(const string &strPathLeft, const string &strPathRight, const string &strPathTimes,
                 vector<string> &vstrImageLeft, vector<string> &vstrImageRight, vector<double> &vTimeStamps);
-
 double ttrack_tot = 0;
+
 int main(int argc, char **argv)
 {
     const int num_seq = (argc-3)/3;

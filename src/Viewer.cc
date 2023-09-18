@@ -187,8 +187,8 @@ void Viewer::Run()
     pangolin::Var<bool> menuStop("menu.Stop",false,false);
     pangolin::Var<bool> menuStepByStep("menu.Step By Step",false,true);  // false, true
     pangolin::Var<bool> menuStep("menu.Step",false,false);
-
     pangolin::Var<bool> menuShowOptLba("menu.Show LBA opt", false, true);
+
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
                 pangolin::ProjectionMatrix(1024,768,mViewpointF,mViewpointF,512,389,0.1,1000),
@@ -305,8 +305,6 @@ void Viewer::Run()
             mpTracker->mbStep = true;
             menuStep = false;
         }
-
-
         d_cam.Activate(s_cam);
         glClearColor(1.0f,1.0f,1.0f,1.0f);
         mpMapDrawer->DrawCurrentCamera(Twc);
@@ -375,11 +373,9 @@ void Viewer::Run()
                 usleep(3000);
             }
         }
-
         if(CheckFinish())
             break;
     }
-
     SetFinish();
 }
 

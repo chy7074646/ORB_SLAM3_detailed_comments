@@ -208,7 +208,6 @@ void LocalMapping::Run()
                         Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpCurrentKeyFrame->GetMap(),num_FixedKF_BA,num_OptKF_BA,num_MPs_BA,num_edges_BA);
                         b_doneLBA = true;
                     }
-
                 }
 #ifdef REGISTER_TIMES
                 std::chrono::steady_clock::time_point time_EndLBA = std::chrono::steady_clock::now();
@@ -228,9 +227,7 @@ void LocalMapping::Run()
                     vnLBA_KFfixed.push_back(num_FixedKF_BA);
                     vnLBA_MPs.push_back(num_MPs_BA);
                 }
-
 #endif
-
                 // Initialize IMU here
                 // Step 7 当前关键帧所在地图未完成IMU初始化（第一阶段）
                 if(!mpCurrentKeyFrame->GetMap()->isImuInitialized() && mbInertial)
@@ -242,8 +239,6 @@ void LocalMapping::Run()
                     else
                         InitializeIMU(1e2, 1e5, true);
                 }
-
-
                 // Check redundant local Keyframes
                 // 跟踪中关键帧插入条件比较松，交给LocalMapping线程的关键帧会比较密，这里再删除冗余
                 // Step 8 检测并剔除当前帧相邻的关键帧中冗余的关键帧
@@ -288,7 +283,6 @@ void LocalMapping::Run()
                                     InitializeIMU(0.f, 0.f, true);
                                 else
                                     InitializeIMU(0.f, 0.f, true);
-
                                 cout << "end VIBA 2" << endl;
                             }
                         }
@@ -399,7 +393,7 @@ void LocalMapping::ProcessNewKeyFrame()
     // TrackLocalMap中和当前帧新匹配上的地图点和当前关键帧进行关联绑定
     const vector<MapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
     // 对当前处理的这个关键帧中的所有的地图点展开遍历
-    for(size_t i=0; i<vpMapPointMatches.size(); i++)
+    for(size_t i = 0; i < vpMapPointMatches.size(); i++)
     {
         MapPoint* pMP = vpMapPointMatches[i];
         if(pMP)
@@ -425,11 +419,9 @@ void LocalMapping::ProcessNewKeyFrame()
             }
         }
     }
-
     // Update links in the Covisibility Graph
     // Step 4：更新关键帧间的连接关系（共视图）
     mpCurrentKeyFrame->UpdateConnections();
-
     // Insert Keyframe in Map
     // Step 5：将该关键帧插入到地图中
     mpAtlas->AddKeyFrame(mpCurrentKeyFrame);
@@ -596,7 +588,7 @@ void LocalMapping::CreateNewMapPoints()
             // baseline与景深的比例
             const float ratioBaselineDepth = baseline/medianDepthKF2;
             // 如果特别远(比例特别小)，基线太短恢复3D点不准，那么跳过当前邻接的关键帧，不生成3D点
-            if(ratioBaselineDepth<0.01)
+            if(ratioBaselineDepth < 0.01)
                 continue;
         }
 
@@ -611,9 +603,9 @@ void LocalMapping::CreateNewMapPoints()
 
         // 取出与mpCurrentKeyFrame共视关键帧的内外参信息
         Sophus::SE3<float> sophTcw2 = pKF2->GetPose();
-        Eigen::Matrix<float,3,4> eigTcw2 = sophTcw2.matrix3x4();
-        Eigen::Matrix<float,3,3> Rcw2 = eigTcw2.block<3,3>(0,0);
-        Eigen::Matrix<float,3,3> Rwc2 = Rcw2.transpose();
+        Eigen::Matrix<float, 3, 4> eigTcw2 = sophTcw2.matrix3x4();
+        Eigen::Matrix<float, 3, 3> Rcw2 = eigTcw2.block<3, 3>(0,0);
+        Eigen::Matrix<float, 3, 3> Rwc2 = Rcw2.transpose();
         Eigen::Vector3f tcw2 = sophTcw2.translation();
 
         const float &fx2 = pKF2->fx;
@@ -633,21 +625,16 @@ void LocalMapping::CreateNewMapPoints()
             const int &idx1 = vMatchedIndices[ikp].first;
             // 当前匹配对在邻接关键帧中的索引
             const int &idx2 = vMatchedIndices[ikp].second;
-
-            
             // 5.1
             // 当前匹配在当前关键帧中的特征点
             const cv::KeyPoint &kp1 = (mpCurrentKeyFrame -> NLeft == -1) ? mpCurrentKeyFrame->mvKeysUn[idx1]
                                                                          : (idx1 < mpCurrentKeyFrame -> NLeft) ? mpCurrentKeyFrame -> mvKeys[idx1]
                                                                                                                : mpCurrentKeyFrame -> mvKeysRight[idx1 - mpCurrentKeyFrame -> NLeft];
             // mvuRight中存放着极限校准后双目特征点在右目对应的像素横坐标，如果不是基线校准的双目或者没有找到匹配点，其值将为-1（或者rgbd）
-            const float kp1_ur=mpCurrentKeyFrame->mvuRight[idx1];
+            const float kp1_ur = mpCurrentKeyFrame->mvuRight[idx1];
             bool bStereo1 = (!mpCurrentKeyFrame->mpCamera2 && kp1_ur>=0);
             // 查看点idx1是否为右目的点
-            const bool bRight1 = (mpCurrentKeyFrame -> NLeft == -1 || idx1 < mpCurrentKeyFrame -> NLeft) ? false
-                                                                                                         : true;
-            
-            
+            const bool bRight1 = (mpCurrentKeyFrame -> NLeft == -1 || idx1 < mpCurrentKeyFrame -> NLeft) ? false : true;
             // 5.2
             // 当前匹配在邻接关键帧中的特征点
             const cv::KeyPoint &kp2 = (pKF2 -> NLeft == -1) ? pKF2->mvKeysUn[idx2]
@@ -658,8 +645,7 @@ void LocalMapping::CreateNewMapPoints()
             const float kp2_ur = pKF2->mvuRight[idx2];
             bool bStereo2 = (!pKF2->mpCamera2 && kp2_ur>=0);
             // 查看点idx2是否为右目的点
-            const bool bRight2 = (pKF2 -> NLeft == -1 || idx2 < pKF2 -> NLeft) ? false
-                                                                               : true;
+            const bool bRight2 = (pKF2 -> NLeft == -1 || idx2 < pKF2 -> NLeft) ? false: true;
 
             // 5.3 当目前为左右目时，确定两个点所在相机之间的位姿关系
             if(mpCurrentKeyFrame->mpCamera2 && pKF2->mpCamera2){
@@ -716,7 +702,7 @@ void LocalMapping::CreateNewMapPoints()
 
             // Check parallax between rays
             // Step 5.4：利用匹配点反投影得到视差角
-            // 特征点反投影,其实得到的是在各自相机坐标系下的一个非归一化的方向向量,和这个点的反投影射线重合
+            // 特征点反投影, 其实得到的是在各自相机坐标系下的一个非归一化的方向向量,和这个点的反投影射线重合
             Eigen::Vector3f xn1 = pCamera1->unprojectEig(kp1.pt);
             Eigen::Vector3f xn2 = pCamera2->unprojectEig(kp2.pt);
             // 由相机坐标系转到世界坐标系(得到的是那条反投影射线的一个同向向量在世界坐标系下的表示,还是只能够表示方向)，得到视差角余弦值
@@ -732,9 +718,9 @@ void LocalMapping::CreateNewMapPoints()
 
             // Step 5.5：对于双目，利用双目得到视差角；单目相机没有特殊操作
             if(bStereo1)
-                // 传感器是双目相机,并且当前的关键帧的这个点有对应的深度
+                // 传感器是双目相机,  并且当前的关键帧的这个点有对应的深度
                 // 假设是平行的双目相机，计算出两个相机观察这个点的时候的视差角;
-                // ? 感觉直接使用向量夹角的方式计算会准确一些啊（双目的时候），那么为什么不直接使用那个呢？
+                // ? 感觉直接使用向量夹角的方式计算会准确一些啊（双目的时候，那么为什么不直接使用那个呢？
                 // 回答：因为双目深度值、基线是更可靠的，比特征匹配再三角化出来的稳
                 cosParallaxStereo1 = cos(2*atan2(mpCurrentKeyFrame->mb/2,mpCurrentKeyFrame->mvDepth[idx1]));
             else if(bStereo2)
@@ -816,7 +802,6 @@ void LocalMapping::CreateNewMapPoints()
                 // 假设测量有一个像素的偏差，2自由度卡方检验阈值是5.991
                 if((errX1*errX1+errY1*errY1)>5.991*sigmaSquare1)
                     continue;
-
             }
             else
             {
@@ -921,7 +906,6 @@ void LocalMapping::SearchInNeighbors()
     // 开始之前先定义几个概念
     // 当前关键帧的邻接关键帧，称为一级相邻关键帧，也就是邻居
     // 与一级相邻关键帧相邻的关键帧，称为二级相邻关键帧，也就是邻居的邻居
-
     // 单目情况要30个邻接关键帧,0.4版本是20个，又加了许多
     int nn = 10;
     if(mbMonocular)
@@ -931,7 +915,7 @@ void LocalMapping::SearchInNeighbors()
     const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
     // Step 2：存储一级相邻关键帧及其二级相邻关键帧
     vector<KeyFrame*> vpTargetKFs;
-    // 开始对所有候选的一级关键帧展开遍历：
+    // 开始对所有候选的一级关键帧展开遍历:
     for(vector<KeyFrame*>::const_iterator vit=vpNeighKFs.begin(), vend=vpNeighKFs.end(); vit!=vend; vit++)
     {
         KeyFrame* pKFi = *vit;
@@ -946,8 +930,8 @@ void LocalMapping::SearchInNeighbors()
 
     // Add some covisible of covisible
     // Extend to some second neighbors if abort is not requested
-    // 以一级相邻关键帧的共视关系最好的5个相邻关键帧 作为二级相邻关键帧
-    for(int i=0, imax=vpTargetKFs.size(); i<imax; i++)
+    // 以一级相邻关键帧的共视关系最好的5个相邻关键帧作为二级相邻关键帧
+    for(int i = 0, imax = vpTargetKFs.size(); i<imax; i++)
     {
         const vector<KeyFrame*> vpSecondNeighKFs = vpTargetKFs[i]->GetBestCovisibilityKeyFrames(20);
         // 遍历得到的二级相邻关键帧
@@ -977,7 +961,7 @@ void LocalMapping::SearchInNeighbors()
                 continue;
             }
             vpTargetKFs.push_back(pKFi);
-            pKFi->mnFuseTargetForKF=mpCurrentKeyFrame->mnId;
+            pKFi->mnFuseTargetForKF = mpCurrentKeyFrame->mnId;
             pKFi = pKFi->mPrevKF;
         }
     }
@@ -999,7 +983,6 @@ void LocalMapping::SearchInNeighbors()
         matcher.Fuse(pKFi,vpMapPointMatches);
         if(pKFi->NLeft != -1) matcher.Fuse(pKFi,vpMapPointMatches,true);
     }
-
 
     if (mbAbortBA)
         return;
@@ -1038,7 +1021,6 @@ void LocalMapping::SearchInNeighbors()
     // 不同的是正向操作是"每个关键帧和当前关键帧的地图点进行融合",而这里的是"当前关键帧和所有邻接关键帧的地图点进行融合"
     matcher.Fuse(mpCurrentKeyFrame,vpFuseCandidates);
     if(mpCurrentKeyFrame->NLeft != -1) matcher.Fuse(mpCurrentKeyFrame,vpFuseCandidates,true);
-
 
     // Update points
     // Step 5：更新当前帧地图点的描述子、深度、观测主方向等属性
@@ -1224,7 +1206,6 @@ void LocalMapping::KeyFrameCulling()
         }
         last_ID = aux_KF->mnId;
     }
-
 
     // 对所有的共视关键帧进行遍历
     for(vector<KeyFrame*>::iterator vit=vpLocalKeyFrames.begin(), vend=vpLocalKeyFrames.end(); vit!=vend; vit++)
@@ -1443,7 +1424,6 @@ void LocalMapping::ResetIfRequested()
             mbBadImu=false;
 
             mIdxInit=0;
-
             cout << "LM: End reseting Local Mapping..." << endl;
         }
 
@@ -1889,9 +1869,7 @@ void LocalMapping::ScaleRefinement()
         bInitializing=false;
         return;
     }
-
     Sophus::SO3d so3wg(mRwg);
-
 
     // Before this line we are not changing the map
     // 3. 开始更新地图

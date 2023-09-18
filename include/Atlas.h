@@ -144,7 +144,6 @@ public:
     long unsigned int GetNumLivedMP();
 
 protected:
-
     std::set<Map*> mspMaps;
     std::set<Map*> mspBadMaps;
     // Its necessary change the container from set to vector because libboost 1.58 and Ubuntu 16.04 have an error with this cointainer
@@ -165,8 +164,6 @@ protected:
 
     // Mutex
     std::mutex mMutexAtlas;
-
-
 }; // class Atlas
 
 } // namespace ORB_SLAM3

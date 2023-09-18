@@ -112,7 +112,7 @@ MLPnPsolver::MLPnPsolver(const Frame &F,                                // 输�
                 mvBearingVecs.push_back(br);
 
                 // 3D coordinates
-                //  获取当前特征点的3D坐标
+                // 获取当前特征点的3D坐标
                 Eigen::Matrix<float, 3, 1> posEig = pMP->GetWorldPos();
                 point_t pos(posEig(0), posEig(1), posEig(2));
                 mvP3Dw.push_back(pos);
@@ -302,10 +302,9 @@ bool MLPnPsolver::iterate(int nIterations, bool &bNoMore, vector<bool> &vbInlier
 
 /**
  * @brief 设置RANSAC迭代的参数
- *
- * @param[in] probability       模型最大概率值，默认0.9
- * @param[in] minInliers        内点的最小阈值，默认8
- * @param[in] maxIterations     最大迭代次数，默认300
+ * @param[in] probability 模型最大概率值，默认0.9
+ * @param[in] minInliers   内点的最小阈值，默认8
+ * @param[in] maxIterations 最大迭代次数，默认300
  * @param[in] minSet            最小集，每次采样六个点，即最小集应该设置为6，论文里面写着I > 5
  * @param[in] epsilon           理论最少内点个数，这里是按照总数的比例计算，所以epsilon是比例，默认是0.4
  * @param[in] th2               卡方检验阈值

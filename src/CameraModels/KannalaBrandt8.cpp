@@ -17,9 +17,7 @@
  */
 
 #include "KannalaBrandt8.h"
-
 #include <boost/serialization/export.hpp>
-
 // BOOST_CLASS_EXPORT_IMPLEMENT(ORB_SLAM3::KannalaBrandt8)
 
 namespace ORB_SLAM3
@@ -430,7 +428,7 @@ bool KannalaBrandt8::matchAndtriangulate(const cv::KeyPoint &kp1, const cv::KeyP
  * @param kp1 左相机特征点
  * @param kp2 右相机特征点
  * @param R12 2->1的旋转
- * @param t12 2->1的平移
+ * @param t12  2->1的平移
  * @param sigmaLevel 特征点1的尺度的平方
  * @param unc 特征点2的尺度的平方
  * @param p3D 恢复的三维点
@@ -450,7 +448,6 @@ float KannalaBrandt8::TriangulateMatches(
     // 这里有点像极线约束，但并不是，将r2通过R12旋转到与r1同方向的坐标系
     // 然后计算他们的夹角，看其是否超过1.14° 
     Eigen::Vector3f r21 = R12 * r2;
-
     const float cosParallaxRays = r1.dot(r21) / (r1.norm() * r21.norm());
 
     if (cosParallaxRays > 0.9998)
@@ -460,10 +457,8 @@ float KannalaBrandt8::TriangulateMatches(
 
     // Parallax is good, so we try to triangulate
     cv::Point2f p11, p22;
-
     p11.x = r1[0];
     p11.y = r1[1];
-
     p22.x = r2[0];
     p22.y = r2[1];
 
@@ -596,5 +591,4 @@ bool KannalaBrandt8::IsEqual(GeometricCamera *pCam)
     }
     return is_same_camera;
 }
-
 }

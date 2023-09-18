@@ -26,6 +26,14 @@
 
 #include "TwoViewReconstruction.h"
 
+namespace cv 
+{ 
+template<typename _Tp, int m, int n> static inline Matx<_Tp, m, n> operator / (const Matx<_Tp, m, n>& a, float alpha) 
+{
+ return Matx<_Tp, m, n>(a, 1.f / alpha, Matx_ScaleOp()); 
+} 
+}
+
 namespace ORB_SLAM3 {
     class KannalaBrandt8 : public GeometricCamera {
 
@@ -110,6 +118,5 @@ namespace ORB_SLAM3 {
                          const Eigen::Matrix<float,3,4> &Tcw2, Eigen::Vector3f &x3D);
     };
 }
-
 
 #endif //CAMERAMODELS_KANNALABRANDT8_H

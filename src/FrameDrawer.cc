@@ -421,7 +421,6 @@ void FrameDrawer::Update(Tracking *pTracker)
                         mvbMap[i]=true;
                     else
                         mvbVO[i]=true;
-
                     mmMatchedInImage[pMP->mnId] = mvCurrentKeys[i].pt;
                 }
                 else
@@ -431,9 +430,7 @@ void FrameDrawer::Update(Tracking *pTracker)
                 }
             }
         }
-
     }
     mState=static_cast<int>(pTracker->mLastProcessedState);
 }
-
 } //namespace ORB_SLAM

@@ -141,7 +141,6 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     threadRight.join();
 #ifdef REGISTER_TIMES
     std::chrono::steady_clock::time_point time_EndExtORB = std::chrono::steady_clock::now();
-
     mTimeORB_Ext = std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(time_EndExtORB - time_StartExtORB).count();
 #endif
 
@@ -165,7 +164,6 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
 
 #ifdef REGISTER_TIMES
     std::chrono::steady_clock::time_point time_EndStereoMatches = std::chrono::steady_clock::now();
-
     mTimeStereoMatch = std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(time_EndStereoMatches - time_StartStereoMatches).count();
 #endif
 
@@ -174,7 +172,6 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     mvbOutlier = vector<bool>(N,false);
     mmProjectPoints.clear();
     mmMatchedInImage.clear();
-
 
     // This is done only for the first Frame (or after a change in the calibration)
     //  Step 5 计算去畸变后图像边界，将特征点分配到网格中。这个过程一般是在第一帧或者是相机标定参数发生变化之后进行
@@ -187,8 +184,6 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
         mfGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/(mnMaxX-mnMinX);
         // 表示一个图像像素相当于多少个图像网格行（高）
         mfGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/(mnMaxY-mnMinY);
-
-
 
         fx = K.at<float>(0,0);
         fy = K.at<float>(1,1);
@@ -1033,7 +1028,6 @@ void Frame::UndistortKeyPoints()
     // 调整回只有一个通道，回归我们正常的处理方式
     mat=mat.reshape(1);
 
-
     // Fill undistorted keypoint vector
     // Step 3 存储校正后的特征点
     mvKeysUn.resize(N);
@@ -1047,7 +1041,6 @@ void Frame::UndistortKeyPoints()
         kp.pt.y=mat.at<float>(i,1);
         mvKeysUn[i]=kp;
     }
-
 }
 
 /**
@@ -1517,11 +1510,8 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     mvbOutlier = vector<bool>(N,false);
 
     AssignFeaturesToGrid();
-
     mpMutexImu = new std::mutex();
-
     UndistortKeyPoints();
-
 }
 
 /** 
@@ -1566,11 +1556,10 @@ void Frame::ComputeStereoFishEyeMatches()
             Eigen::Vector3f p3D;
             descMatches++;
             float sigma1 = mvLevelSigma2[mvKeys[(*it)[0].queryIdx + monoLeft].octave],
-                  sigma2 = mvLevelSigma2[mvKeysRight[(*it)[0].trainIdx + monoRight].octave];
+                      sigma2 = mvLevelSigma2[mvKeysRight[(*it)[0].trainIdx + monoRight].octave];
             // 三角化
-            float depth =
-                static_cast<KannalaBrandt8*>(mpCamera)->TriangulateMatches(
-                    mpCamera2,mvKeys[(*it)[0].queryIdx + monoLeft],
+            float depth = static_cast<KannalaBrandt8*>(mpCamera)->TriangulateMatches(
+                    mpCamera2, mvKeys[(*it)[0].queryIdx + monoLeft],
                     mvKeysRight[(*it)[0].trainIdx + monoRight],
                     mRlr, mtlr, sigma1, sigma2, p3D);
             // 填充数据
@@ -1618,7 +1607,8 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight)
     const float &PcZ = Pc(2);
 
     // Check positive depth
-    // Step 2 关卡一：检查这个地图点在当前帧的相机坐标系下，是否有正的深度.如果是负的，表示出错，直接返回false
+    // Step 2 关卡一：检查这个地图点在当前帧的相机坐标系下，是否有正的深度.如果是负的，
+    //表示出错，直接返回false
     if(PcZ<0.0f)
         return false;
 
@@ -1652,13 +1642,14 @@ bool Frame::isInFrustumChecks(MapPoint *pMP, float viewingCosLimit, bool bRight)
         return false;
 
     // Check viewing angle
-    // Step 5 关卡四：计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值, 若小于cos(viewingCosLimit), 即夹角大于viewingCosLimit弧度则返回
+    // Step 5 关卡四：计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值, 
+    // 若小于cos(viewingCosLimit), 即夹角大于viewingCosLimit弧度则返回
     Eigen::Vector3f Pn = pMP->GetNormal();
 
     // 计算当前相机指向地图点向量和地图点的平均观测方向夹角的余弦值，注意平均观测方向为单位向量
     const float viewCos = PO.dot(Pn) / dist;
 
-    // 如果大于给定的阈值 cos(60°)=0.5，认为这个点方向太偏了，重投影不可靠，返回false
+    // 如果大于给定的阈值 cos(60°) = 0.5，认为这个点方向太偏了，重投影不可靠，返回false
     if(viewCos<viewingCosLimit)
         return false;
 

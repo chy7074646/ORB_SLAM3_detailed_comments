@@ -15,8 +15,6 @@
 * You should have received a copy of the GNU General Public License along with ORB-SLAM3.
 * If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 #ifndef MAPPOINT_H
 #define MAPPOINT_H
 
@@ -24,26 +22,20 @@
 #include "Frame.h"
 #include "Map.h"
 #include "Converter.h"
-
 #include "SerializationUtils.h"
-
 #include <opencv2/core/core.hpp>
 #include <mutex>
-
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/map.hpp>
 
 namespace ORB_SLAM3
 {
-
 class KeyFrame;
 class Map;
 class Frame;
-
 class MapPoint
 {
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
@@ -99,9 +91,7 @@ class MapPoint
 
         ar & mfMinDistance;
         ar & mfMaxDistance;
-
     }
-
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -113,12 +103,9 @@ public:
 
     void SetWorldPos(const Eigen::Vector3f &Pos);
     Eigen::Vector3f GetWorldPos();
-
     Eigen::Vector3f GetNormal();
     void SetNormalVector(const Eigen::Vector3f& normal);
-
     KeyFrame* GetReferenceKeyFrame();
-
     std::map<KeyFrame*,std::tuple<int,int>> GetObservations();
     int Observations();
 
@@ -142,9 +129,7 @@ public:
     }
 
     void ComputeDistinctiveDescriptors();
-
     cv::Mat GetDescriptor();
-
     void UpdateNormalAndDepth();
 
     float GetMinDistanceInvariance();
@@ -196,19 +181,15 @@ public:
     Eigen::Vector3f mPosMerge;
     Eigen::Vector3f mNormalVectorMerge;
 
-
     // Fopr inverse depth optimization
     double mInvDepth;
     double mInitU;
     double mInitV;
     KeyFrame* mpHostKF;
-
     static std::mutex mGlobalMutex;
-
     unsigned int mnOriginMapId;
 
 protected:    
-
      // Position in absolute coordinates
      Eigen::Vector3f mWorldPos;
 
@@ -220,7 +201,6 @@ protected:
 
      // Mean viewing direction
      Eigen::Vector3f mNormalVector;
-
      // Best descriptor to fast matching
      cv::Mat mDescriptor;
 
@@ -248,9 +228,7 @@ protected:
      std::mutex mMutexPos;
      std::mutex mMutexFeatures;
      std::mutex mMutexMap;
-
 };
-
 } //namespace ORB_SLAM
 
 #endif // MAPPOINT_H

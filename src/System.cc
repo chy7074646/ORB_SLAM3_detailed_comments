@@ -61,7 +61,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     "under certain conditions. See LICENSE.txt." << endl << endl;
 
     cout << "Input sensor was set to: ";
-
     if(mSensor==MONOCULAR)
         cout << "Monocular" << endl;             // 单目
     else if(mSensor==STEREO)
@@ -134,7 +133,9 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         // 建立一个新的ORB字典
         mpVocabulary = new ORBVocabulary();
         // 读取预训练好的ORB字典并返回成功/失败标志
+        std::cout<<endl<<"**************"<<std::endl;
         bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+        std::cout<<endl<<"<<<<<<<<<>>>>>>>>>>"<<std::endl;
         // 如果加载失败，就输出错误信息
         if(!bVocLoad)
         {
@@ -271,7 +272,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     // Fix verbosity
     // 打印输出中间的信息，设置为安静模式
     Verbose::SetTh(Verbose::VERBOSITY_QUIET);
-
 }
 
 Sophus::SE3f System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp, const vector<IMU::Point>& vImuMeas, string filename)
@@ -521,8 +521,6 @@ Sophus::SE3f System::TrackMonocular(const cv::Mat &im, const double &timestamp, 
     return Tcw;
 }
 
-
-
 void System::ActivateLocalizationMode()
 {
     unique_lock<mutex> lock(mMutexMode);
@@ -600,8 +598,6 @@ void System::Shutdown()
         // }
         usleep(5000);
     }
-
-
     if(!mStrSaveAtlasToFile.empty())
     {
         std::cout << "开始保存地图" << std::endl;
@@ -615,8 +611,6 @@ void System::Shutdown()
 #ifdef REGISTER_TIMES
     mpTracker->PrintTimeStats();
 #endif
-
-
 }
 
 bool System::isShutDown()
@@ -712,7 +706,6 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
         Eigen::Vector3f t = Twc.translation();
         f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t(0) << " " << t(1) << " " << t(2)
           << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
-
     }
 
     f.close();
@@ -720,14 +713,12 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 
 void System::SaveTrajectoryEuRoC(const string &filename)
 {
-
     cout << endl << "Saving trajectory to " << filename << " ..." << endl;
     /*if(mSensor==MONOCULAR)
     {
         cerr << "ERROR: SaveTrajectoryEuRoC cannot be used for monocular." << endl;
         return;
     }*/
-
     vector<Map*> vpMaps = mpAtlas->GetAllMaps();
     int numMaxKFs = 0;
     Map* pBiggerMap;
@@ -772,8 +763,7 @@ void System::SaveTrajectoryEuRoC(const string &filename)
     //cout << "size mlRelativeFramePoses: " << mpTracker->mlRelativeFramePoses.size() << endl;
     //cout << "size mpTracker->mlFrameTimes: " << mpTracker->mlFrameTimes.size() << endl;
     //cout << "size mpTracker->mlbLost: " << mpTracker->mlbLost.size() << endl;
-
-
+    
     for(auto lit=mpTracker->mlRelativeFramePoses.begin(),
         lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++, lbL++)
     {
@@ -781,16 +771,13 @@ void System::SaveTrajectoryEuRoC(const string &filename)
         if(*lbL)
             continue;
 
-
         KeyFrame* pKF = *lRit;
         //cout << "KF: " << pKF->mnId << endl;
-
         Sophus::SE3f Trw;
 
         // If the reference keyframe was culled, traverse the spanning tree to get a suitable keyframe.
         if (!pKF)
             continue;
-
         //cout << "2.5" << endl;
 
         while(pKF->isBad())
@@ -808,11 +795,9 @@ void System::SaveTrajectoryEuRoC(const string &filename)
         }
 
         //cout << "3" << endl;
-
         Trw = Trw * pKF->GetPose()*Twb; // Tcp*Tpw*Twb0=Tcb0 where b0 is the new world reference
 
         // cout << "4" << endl;
-
         if (mSensor == IMU_MONOCULAR || mSensor == IMU_STEREO || mSensor==IMU_RGBD)
         {
             Sophus::SE3f Twb = (pKF->mImuCalib.mTbc * (*lit) * Trw).inverse();
@@ -827,7 +812,6 @@ void System::SaveTrajectoryEuRoC(const string &filename)
             Eigen::Vector3f twc = Twc.translation();
             f << setprecision(6) << 1e9*(*lT) << " " <<  setprecision(9) << twc(0) << " " << twc(1) << " " << twc(2) << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
         }
-
         // cout << "5" << endl;
     }
     //cout << "end saving trajectory" << endl;
@@ -1059,7 +1043,6 @@ void System::SaveTrajectoryEuRoC(const string &filename, Map* pMap)
     f.close();
     cout << endl << "End of saving trajectory to " << filename << " ..." << endl;
 }*/
-
 
 /*void System::SaveKeyFrameTrajectoryEuRoC_old(const string &filename)
 {
@@ -1320,7 +1303,6 @@ void System::SaveTrajectoryKITTI(const string &filename)
     f.close();
 }
 
-
 void System::SaveDebugData(const int &initIdx)
 {
     // 0. Save initialization trajectory
@@ -1376,7 +1358,6 @@ void System::SaveDebugData(const int &initIdx)
     f.close();
 }
 
-
 int System::GetTrackingState()
 {
     unique_lock<mutex> lock(mMutexState);
@@ -1416,7 +1397,6 @@ bool System::isLost()
             return false;
     }
 }
-
 
 bool System::isFinished()
 {
@@ -1621,6 +1601,5 @@ string System::CalculateCheckSum(string filename, int type)
 
     return checksum;
 }
-
 } //namespace ORB_SLAM
 

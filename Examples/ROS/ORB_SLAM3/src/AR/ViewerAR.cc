@@ -107,7 +107,6 @@ void ViewerAR::Run()
 
     while(1)
     {
-
         if(menu_LocalizationMode && !bLocalizationMode)
         {
             mpSystem->ActivateLocalizationMode();
@@ -223,14 +222,10 @@ void ViewerAR::Run()
                     }
                 }
             }
-
-
         }
-
         pangolin::FinishFrame();
         usleep(mT*1000);
     }
-
 }
 
 void ViewerAR::SetImagePose(const cv::Mat &im, const cv::Mat &Tcw, const int &status, const vector<cv::KeyPoint> &vKeys, const vector<ORB_SLAM3::MapPoint*> &vMPs)

@@ -15,8 +15,6 @@
 * You should have received a copy of the GNU General Public License along with ORB-SLAM3.
 * If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 #ifndef FRAME_H
 #define FRAME_H
 
@@ -24,7 +22,6 @@
 
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-
 #include "Thirdparty/Sophus/sophus/geometry.hpp"
 
 #include "ImuTypes.h"
@@ -162,15 +159,13 @@ public:
         return mbHasVelocity;
     }
 
-
-
 private:
     //Sophus/Eigen migration
-    Sophus::SE3<float> mTcw;
-    Eigen::Matrix<float,3,3> mRwc;
+    Sophus::SE3<float> mTcw; //世界坐标系到相机坐标系的转化矩阵
+    Eigen::Matrix<float,3,3> mRwc;//相机坐标系到世界坐标系的旋转矩阵
     Eigen::Matrix<float,3,1> mOw;
-    Eigen::Matrix<float,3,3> mRcw;
-    Eigen::Matrix<float,3,1> mtcw;
+    Eigen::Matrix<float,3,3> mRcw;//世界坐标系到相机坐标系的旋转矩阵
+    Eigen::Matrix<float,3,1> mtcw;//世界坐标系到相机坐标系的旋转矩阵
     bool mbHasPose;
 
     //Rcw_ not necessary as Sophus has a method for extracting the rotation matrix: Tcw_.rotationMatrix()
@@ -180,7 +175,6 @@ private:
     Sophus::SE3<float> mTlr, mTrl;
     Eigen::Matrix<float,3,3> mRlr;
     Eigen::Vector3f mtlr;
-
 
     // IMU linear velocity
     Eigen::Vector3f mVw;
@@ -288,14 +282,11 @@ public:
     static float mnMaxX;
     static float mnMinY;
     static float mnMaxY;
-
     static bool mbInitialComputations;
-
     map<long unsigned int, cv::Point2f> mmProjectPoints;
     map<long unsigned int, cv::Point2f> mmMatchedInImage;
 
     string mNameFile;
-
     int mnDataset;
 
 #ifdef REGISTER_TIMES
@@ -304,7 +295,6 @@ public:
 #endif
 
 private:
-
     // Undistort keypoints given OpenCV distortion parameters.
     // Only for the RGB-D case. Stereo must be already rectified!
     // (called in the constructor).
@@ -370,5 +360,4 @@ public:
 };
 
 }// namespace ORB_SLAM
-
 #endif // FRAME_H

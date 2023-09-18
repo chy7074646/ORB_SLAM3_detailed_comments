@@ -30,8 +30,6 @@
 
 namespace ORB_SLAM3
 {
-
-
 Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> &vpMatched12, const bool bFixScale,
                        vector<KeyFrame*> vpKeyFrameMatchedMP):
     mnIterations(0), mnBestInliers(0), mbFixScale(bFixScale),
@@ -48,9 +46,7 @@ Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> 
     mpKF2 = pKF2;
 
     vector<MapPoint*> vpKeyFrameMP1 = pKF1->GetMapPointMatches();
-
     mN1 = vpMatched12.size();
-
     mvpMapPoints1.reserve(mN1);
     mvpMapPoints2.reserve(mN1);
     mvpMatches12 = vpMatched12;
@@ -116,7 +112,6 @@ Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> 
 
     FromCameraToImage(mvX3Dc1,mvP1im1,pCamera1);
     FromCameraToImage(mvX3Dc2,mvP2im2,pCamera2);
-
     SetRansacParameters();
 }
 
@@ -262,7 +257,7 @@ Eigen::Matrix4f Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool>
 
         CheckInliers();
 
-        if(mnInliersi>=mnBestInliers)
+        if(mnInliersi >= mnBestInliers)
         {
             mvbBestInliers = mvbInliersi;
             mnBestInliers = mnInliersi;
@@ -307,14 +302,12 @@ void Sim3Solver::ComputeCentroid(Eigen::Matrix3f &P, Eigen::Matrix3f &Pr, Eigen:
     Pr.col(i) = P.col(i) - C;
 }
 
-
 void Sim3Solver::ComputeSim3(Eigen::Matrix3f &P1, Eigen::Matrix3f &P2)
 {
     // Custom implementation of:
     // Horn 1987, Closed-form solution of absolute orientataion using unit quaternions
 
     // Step 1: Centroid and relative coordinates
-
     Eigen::Matrix3f Pr1; // Relative coordinates to centroid (set 1)
     Eigen::Matrix3f Pr2; // Relative coordinates to centroid (set 2)
     Eigen::Vector3f O1; // Centroid of P1
@@ -348,7 +341,6 @@ void Sim3Solver::ComputeSim3(Eigen::Matrix3f &P1, Eigen::Matrix3f &P2)
          N13, N23, N33, N34,
          N14, N24, N34, N44;
 
-
     // Step 4: Eigenvector of the highest eigenvalue
     Eigen::EigenSolver<Eigen::Matrix4f> eigSolver;
     eigSolver.compute(N);
@@ -371,7 +363,6 @@ void Sim3Solver::ComputeSim3(Eigen::Matrix3f &P1, Eigen::Matrix3f &P2)
     Eigen::Matrix3f P3 = mR12i*Pr2;
 
     // Step 6: Scale
-
     if(!mbFixScale)
     {
         double cvnom = Converter::toCvMat(Pr1).dot(Converter::toCvMat(P3));
@@ -391,14 +382,12 @@ void Sim3Solver::ComputeSim3(Eigen::Matrix3f &P1, Eigen::Matrix3f &P2)
     mt12i = O1 - ms12i * mR12i * O2;
 
     // Step 8: Transformation
-
     // Step 8.1 T12
     mT12i.setIdentity();
 
     Eigen::Matrix3f sR = ms12i*mR12i;
     mT12i.block<3,3>(0,0) = sR;
     mT12i.block<3,1>(0,3) = mt12i;
-
 
     // Step 8.2 T21
     mT21i.setIdentity();
@@ -410,7 +399,6 @@ void Sim3Solver::ComputeSim3(Eigen::Matrix3f &P1, Eigen::Matrix3f &P2)
     Eigen::Vector3f tinv = -sRinv * mt12i;
     mT21i.block<3,1>(0,3) = tinv;
 }
-
 
 void Sim3Solver::CheckInliers()
 {

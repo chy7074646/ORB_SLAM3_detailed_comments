@@ -31,7 +31,6 @@ using namespace std;
 
 namespace ORB_SLAM3
 {
-
     const int ORBmatcher::TH_HIGH = 100;
     const int ORBmatcher::TH_LOW = 50;
     const int ORBmatcher::HISTO_LENGTH = 30;
@@ -117,7 +116,6 @@ namespace ORB_SLAM3
                         }
 
                         const cv::Mat &d = F.mDescriptors.row(idx);
-
                         // 计算地图点和候选投影点的描述子距离
                         const int dist = DescriptorDistance(MPdescriptor,d);
 
@@ -195,9 +193,7 @@ namespace ORB_SLAM3
                             if(F.mvpMapPoints[idx + F.Nleft]->Observations()>0)
                                 continue;
 
-
                         const cv::Mat &d = F.mDescriptors.row(idx + F.Nleft);
-
                         const int dist = DescriptorDistance(MPdescriptor,d);
 
                         if(dist<bestDist)
@@ -226,7 +222,6 @@ namespace ORB_SLAM3
                             nmatches++;
                             left++;
                         }
-
 
                         F.mvpMapPoints[bestIdx + F.Nleft]=pMP;
                         nmatches++;
@@ -377,7 +372,6 @@ namespace ORB_SLAM3
                                 bestDist2R=dist;
                             }
                         }
-
                     }
                     // Step 4：根据阈值 和 角度投票剔除误匹配
                     // Step 4.1：第一关筛选：匹配距离必须小于设定阈值
@@ -503,7 +497,7 @@ namespace ORB_SLAM3
 
         // Decompose Scw
         // Step 1 分解Sim变换矩阵
-        //? 为什么要剥离尺度信息？
+        // 为什么要剥离尺度信息？
         Sophus::SE3f Tcw = Sophus::SE3f(Scw.rotationMatrix(),Scw.translation()/Scw.scale());
         Eigen::Vector3f Ow = Tcw.inverse().translation();  // 世界坐标系下相机光心坐标
 
@@ -513,7 +507,6 @@ namespace ORB_SLAM3
         spAlreadyFound.erase(static_cast<MapPoint*>(NULL));
 
         int nmatches=0;
-
         // For each Candidate MapPoint Project and Match
         // Step 2 遍历闭环KF及其共视KF的所有地图点（不考虑当前KF已经匹配的地图点）投影到当前KF
         for(int iMP=0, iendMP=vpPoints.size(); iMP<iendMP; iMP++)
@@ -725,7 +718,6 @@ namespace ORB_SLAM3
                 vpMatchedKF[bestIdx] = pKFi;
                 nmatches++;
             }
-
         }
 
         return nmatches;
@@ -746,7 +738,6 @@ namespace ORB_SLAM3
         //! 原作者代码是 const float factor = 1.0f/HISTO_LENGTH; 是错误的，更改为下面代码
         // const float factor = HISTO_LENGTH/360.0f;
         const float factor = 1.0f/HISTO_LENGTH;
-
 
         // 匹配点对距离，注意是按照F2特征点数目分配空间
         vector<int> vMatchedDistance(F2.mvKeysUn.size(),INT_MAX);
@@ -881,13 +872,13 @@ namespace ORB_SLAM3
 
     /*
     * @brief 通过词袋，对关键帧的特征点进行跟踪，该函数用于闭环检测时两个关键帧间的特征点匹配
-    * @details 通过bow对pKF和F中的特征点进行快速匹配（不属于同一node的特征点直接跳过匹配） 
+    * @details 通过bow对pKF和F中的特征点进行快速匹配(不属于同一node的特征点直接跳过匹配） 
     * 对属于同一node的特征点通过描述子距离进行匹配 
     * 通过距离阈值、比例阈值和角度投票进行剔除误匹配
-    * @param  pKF1               KeyFrame1
-    * @param  pKF2               KeyFrame2
-    * @param  vpMatches12        pKF2中与pKF1匹配的MapPoint，vpMatches12[i]表示匹配的地图点，null表示没有匹配，i表示匹配的pKF1 特征点索引
-    * @return                    成功匹配的数量
+    * @param  pKF1  KeyFrame1
+    * @param  pKF2  KeyFrame2
+    * @param  vpMatches12 pKF2中与pKF1匹配的MapPoint，vpMatches12[i]表示匹配的地图点，null表示没有匹配，i表示匹配的pKF1 特征点索引
+    * @return  成功匹配的数量
     */
     int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches12)
     {
@@ -1049,12 +1040,12 @@ namespace ORB_SLAM3
         const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
 
         //Compute epipole in second image
-        // Step 1 计算KF1的相机中心在KF2图像平面的二维像素坐标
+        //Step 1 计算KF1的相机中心在KF2图像平面的二维像素坐标
         Sophus::SE3f T1w = pKF1->GetPose();
         Sophus::SE3f T2w = pKF2->GetPose();
         Sophus::SE3f Tw2 = pKF2->GetPoseInverse(); // for convenience
         Eigen::Vector3f Cw = pKF1->GetCameraCenter();
-        Eigen::Vector3f C2 = T2w * Cw;
+        Eigen::Vector3f C2 = T2w*Cw;
 
         Eigen::Vector2f ep = pKF2->mpCamera->project(C2);
         Sophus::SE3f T12;
@@ -1387,7 +1378,6 @@ namespace ORB_SLAM3
             }
             // Step 2 得到地图点投影到关键帧的图像坐标
             const float invz = 1/p3Dc(2);
-
             const Eigen::Vector2f uv = pCamera->project(p3Dc);
 
             // Point must be inside the image
@@ -1407,7 +1397,7 @@ namespace ORB_SLAM3
 
             // Depth must be inside the scale pyramid of the image
             // Step 3 地图点到关键帧相机光心距离需满足在有效范围内
-            if(dist3D<minDistance || dist3D>maxDistance) {
+            if(dist3D < minDistance || dist3D > maxDistance) {
                 count_dist++;
                 continue;
             }
@@ -1468,7 +1458,7 @@ namespace ORB_SLAM3
                     const float er = ur-kpr;
                     const float e2 = ex*ex+ey*ey+er*er;
 
-                    //自由度为3, 误差小于1个像素,这种事情95%发生的概率对应卡方检验阈值为7.82
+                    //自由度为3, 误差小于1个像素, 这种事情95%发生的概率对应卡方检验阈值为7.82
                     if(e2*pKF->mvInvLevelSigma2[kpLevel]>7.8)
                         continue;
                 }
@@ -1526,7 +1516,6 @@ namespace ORB_SLAM3
             }
             else
                 count_thcheck++;
-
         }
 
         return nFused;
@@ -2072,7 +2061,6 @@ namespace ORB_SLAM3
                             cv::KeyPoint kpLF = (LastFrame.Nleft == -1) ? LastFrame.mvKeysUn[i]
                                                                         : (i < LastFrame.Nleft) ? LastFrame.mvKeys[i]
                                                                                                 : LastFrame.mvKeysRight[i - LastFrame.Nleft];
-
                             cv::KeyPoint kpCF = (CurrentFrame.Nleft == -1) ? CurrentFrame.mvKeysUn[bestIdx2]
                                                                         : (bestIdx2 < CurrentFrame.Nleft) ? CurrentFrame.mvKeys[bestIdx2]
                                                                                                             : CurrentFrame.mvKeysRight[bestIdx2 - CurrentFrame.Nleft];
@@ -2095,7 +2083,6 @@ namespace ORB_SLAM3
 
                         // Search in a window. Size depends on scale
                         float radius = th*CurrentFrame.mvScaleFactors[nLastOctave];
-
                         vector<size_t> vIndices2;
 
                         if(bForward)
@@ -2104,9 +2091,7 @@ namespace ORB_SLAM3
                             vIndices2 = CurrentFrame.GetFeaturesInArea(uv(0),uv(1), radius, 0, nLastOctave, true);
                         else
                             vIndices2 = CurrentFrame.GetFeaturesInArea(uv(0),uv(1), radius, nLastOctave-1, nLastOctave+1, true);
-
                         const cv::Mat dMP = pMP->GetDescriptor();
-
                         int bestDist = 256;
                         int bestIdx2 = -1;
 
@@ -2116,9 +2101,7 @@ namespace ORB_SLAM3
                             if(CurrentFrame.mvpMapPoints[i2 + CurrentFrame.Nleft])
                                 if(CurrentFrame.mvpMapPoints[i2 + CurrentFrame.Nleft]->Observations()>0)
                                     continue;
-
                             const cv::Mat &d = CurrentFrame.mDescriptors.row(i2 + CurrentFrame.Nleft);
-
                             const int dist = DescriptorDistance(dMP,d);
 
                             if(dist<bestDist)
@@ -2150,7 +2133,6 @@ namespace ORB_SLAM3
                                 rotHist[bin].push_back(bestIdx2  + CurrentFrame.Nleft);
                             }
                         }
-
                     }
                 }
             }
@@ -2224,7 +2206,6 @@ namespace ORB_SLAM3
                     Eigen::Vector3f x3Dc = Tcw * x3Dw;
 
                     const Eigen::Vector2f uv = CurrentFrame.mpCamera->project(x3Dc);
-
                     if(uv(0)<CurrentFrame.mnMinX || uv(0)>CurrentFrame.mnMaxX)
                         continue;
                     if(uv(1)<CurrentFrame.mnMinY || uv(1)>CurrentFrame.mnMaxY)
@@ -2293,7 +2274,6 @@ namespace ORB_SLAM3
                             rotHist[bin].push_back(bestIdx2);
                         }
                     }
-
                 }
             }
         }
@@ -2376,7 +2356,6 @@ namespace ORB_SLAM3
         }
     }
 
-
     // Bit set count operation from
     // Hamming distance：两个二进制串之间的汉明距离，指的是其不同位数的个数
     // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
@@ -2386,7 +2365,6 @@ namespace ORB_SLAM3
         const int *pb = b.ptr<int32_t>();
 
         int dist=0;
-
         // 8*32=256bit
 
         for(int i=0; i<8; i++, pa++, pb++)

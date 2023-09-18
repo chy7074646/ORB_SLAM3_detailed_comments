@@ -47,7 +47,6 @@ bool sortByVal(const pair<MapPoint *, int> &a, const pair<MapPoint *, int> &b)
 }
 
 /**************************************以下为单帧优化**************************************************************/
-
 /**
  * @brief 位姿优化，纯视觉时使用。优化目标：单帧的位姿
  * @param pFrame 待优化的帧
@@ -55,7 +54,6 @@ bool sortByVal(const pair<MapPoint *, int> &a, const pair<MapPoint *, int> &b)
 int Optimizer::PoseOptimization(Frame *pFrame)
 {
     // 该优化函数主要用于Tracking线程中：运动跟踪、参考帧跟踪、地图跟踪、重定位
-
     // Step 1：构造g2o优化器, BlockSolver_6_3表示：位姿 _PoseDim 为6维，路标点 _LandmarkDim 是3维
     g2o::SparseOptimizer optimizer;
     g2o::BlockSolver_6_3::LinearSolverType *linearSolver;
@@ -152,7 +150,6 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                         e->Xw = pMP->GetWorldPos().cast<double>();
 
                         optimizer.addEdge(e);
-
                         vpEdgesMono.push_back(e);
                         vnIndexEdgeMono.push_back(i);
                     }
@@ -199,7 +196,6 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 else  // 两个相机
                 {
                     nInitialCorrespondences++;
-
                     cv::KeyPoint kpUn;
                     // 总数N = 相机1所有特征点数量+相机2所有特征点数量
                     if (i < pFrame->Nleft)
@@ -1281,7 +1277,6 @@ int Optimizer::PoseInertialOptimizationLastFrame(Frame *pFrame, bool bRecInit)
     const float chi2Stereo[4] = {15.6f, 9.8f, 7.815f, 7.815f};
     // 4次优化的迭代次数都为10
     const int its[4] = {10, 10, 10, 10};
-
     // 坏点数
     int nBad = 0;
     // 单目坏点数
@@ -1726,14 +1721,12 @@ Eigen::MatrixXd Optimizer::Marginalize(const Eigen::MatrixXd &H, const int &star
 
 
 /**************************************以下为局部地图优化**************************************************************/
-
 /**
  * @brief Local Bundle Adjustment LocalMapping::Run() 使用，纯视觉
  * @param pKF        KeyFrame
  * @param pbStopFlag 是否停止优化的标志
  * @param pMap       在优化后，更新状态时需要用到Map的互斥量mMutexMapUpdate
  * @param 剩下的都是调试用的
- *
  * 总结下与ORBSLAM2的不同
  * 前面操作基本一样，但优化时2代去掉了误差大的点又进行优化了，3代只是统计但没有去掉继续优化，而后都是将误差大的点干掉
  */
@@ -1958,7 +1951,6 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap
     const float thHuberStereo = sqrt(7.815);
 
     int nPoints = 0;
-
     int nEdges = 0;
 
     // 添加顶点：MapPoint
@@ -2189,7 +2181,6 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap
 
 /**
  * @brief 局部地图＋惯导BA LocalMapping IMU中使用，地图经过imu初始化时用这个函数代替LocalBundleAdjustment
- *
  * @param[in] pKF               //关键帧
  * @param[in] pbStopFlag        //是否停止的标志
  * @param[in] pMap              //地图
@@ -2309,7 +2300,6 @@ void Optimizer::LocalInertialBA(
     // Fixed KFs which are not covisible optimizable
     // 5. 将所有mp点对应的关键帧（除了前面加过的）放入到固定组里面，后面优化时不改变
     const int maxFixKF = 200;
-
     for (list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; lit++)
     {
         map<KeyFrame *, tuple<int, int>> observations = (*lit)->GetObservations();
@@ -2354,8 +2344,8 @@ void Optimizer::LocalInertialBA(
         optimizer.setAlgorithm(solver);
     }
 
-    // Set Local temporal KeyFrame vertices
-    // 7. 建立关于关键帧的节点，其中包括，位姿，速度，以及两个偏置
+    //Set Local temporal KeyFrame vertices
+    //7. 建立关于关键帧的节点，其中包括：位姿，速度，以及两个偏置
     N = vpOptimizableKFs.size();
     for (int i = 0; i < N; i++)
     {
@@ -2553,7 +2543,7 @@ void Optimizer::LocalInertialBA(
         optimizer.addVertex(vPoint);
         const map<KeyFrame *, tuple<int, int>> observations = pMP->GetObservations();
 
-        // Create visual constraints
+        //Create visual constraints
         for (map<KeyFrame *, tuple<int, int>>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++)
         {
             KeyFrame *pKFi = mit->first;
@@ -2598,7 +2588,7 @@ void Optimizer::LocalInertialBA(
                     vpMapPointEdgeMono.push_back(pMP);
                 }
                 // Stereo-observation
-                else if (leftIndex != -1) // Stereo observation
+                else if (leftIndex != -1)// Stereo observation
                 {
                     kpUn = pKFi->mvKeysUn[leftIndex];
                     mVisEdges[pKFi->mnId]++;
@@ -3692,7 +3682,7 @@ void Optimizer::InertialOptimization(
     Verbose::PrintMess("inertial optimization", Verbose::VERBOSITY_NORMAL);
     int its = 200;
     long unsigned int maxKFid = pMap->GetMaxKFid();
-    const vector<KeyFrame *> vpKFs = pMap->GetAllKeyFrames();  // 获取所有关键帧
+    const vector<KeyFrame*> vpKFs = pMap->GetAllKeyFrames();  // 获取所有关键帧
 
     // Setup optimizer
     // 1. 构建优化器
@@ -3742,13 +3732,14 @@ void Optimizer::InertialOptimization(
     else
         VG->setFixed(false);
     optimizer.addVertex(VG);
+
     VertexAccBias *VA = new VertexAccBias(vpKFs.front());
     VA->setId(maxKFid * 2 + 3);
     if (bFixedVel)
         VA->setFixed(true);
     else
         VA->setFixed(false);
-
+        
     optimizer.addVertex(VA);
 
     // prior acc bias

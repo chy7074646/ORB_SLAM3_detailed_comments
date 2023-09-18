@@ -15,8 +15,6 @@
 * You should have received a copy of the GNU General Public License along with ORB-SLAM3.
 * If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 #ifndef ORBMATCHER_H
 #define ORBMATCHER_H
 
@@ -29,14 +27,11 @@
 #include"KeyFrame.h"
 #include"Frame.h"
 
-
 namespace ORB_SLAM3
 {
-
     class ORBmatcher
     {
     public:
-
         ORBmatcher(float nnratio=0.6, bool checkOri=true);
 
         // Computes the Hamming distance between two ORB descriptors
@@ -101,7 +96,5 @@ namespace ORB_SLAM3
         float mfNNratio;
         bool mbCheckOrientation;
     };
-
 }// namespace ORB_SLAM
-
 #endif // ORBMATCHER_H
